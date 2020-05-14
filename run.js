@@ -13,12 +13,20 @@ const throttle = (ms) => {
 };
 
 (async () => {
+  console.log('Launching Chrome.');
   const browser = await puppeteer.launch({ headless: config.headless });
   const page = await browser.newPage();
+
+  console.log('Open twitter.com');
   await page.goto('https://twitter.com/login');
+
+  console.log('Initialize Login.');
   await twitter.login(page, config.account.email, config.account.password);
+
+  console.log('Login successfull.');
   await throttle(5000);
 
+  console.log('Start unfollowing users.');
   const usersToUnfollow = await db.users.getUsersToUnfollow();
   for (let i = 0; i < usersToUnfollow.length; i++) {
     if (i > config.max.unfollow) break;
@@ -27,8 +35,15 @@ const throttle = (ms) => {
     unfollowCount++;
   }
 
-  for (let i = 0; i < config.userBases.length; i++) {
-    const username = config.userBases[i];
+  // user bases from config are used as starting point
+  // once we followed some users, we will start scanning their followers too
+  const latestUsers = await db.users.getLatest();
+  const followedUsernames = latestUsers.map(user => user.name);
+  const usersBases = [...config.userBases, ...followedUsernames];
+
+  console.log('Start following users.');
+  for (let i = 0; i < usersBases.length; i++) {
+    const username = usersBases[i];
     const link = `https://twitter.com/${username}/followers`;
 
     // open new page without starting new session with page.goto
@@ -48,6 +63,7 @@ const throttle = (ms) => {
 
   console.log(`Followed ${followCount} users.`);
   console.log(`Unfollowed ${unfollowCount} users.`);
+  console.log(`Run finished. Shutting down.`);
   
   await page.close();
   await browser.close();

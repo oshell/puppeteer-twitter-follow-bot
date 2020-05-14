@@ -26,6 +26,10 @@ const database = {
   
       return true;
     },
+    getLatest: async () => {
+      const users = await knex('users').limit(100).orderBy('created', 'desc');
+      return users;
+    },
     exists: async (name) => {
       const users = await knex('users').where({ name });
       return users.length;
@@ -36,7 +40,10 @@ const database = {
       return true;
     },
     getUsersToUnfollow: async () => {
-      const users = await knex('users').where('created', '<', formattedDate).andWhere({ unfollowed: false });
+      const users = await knex('users')
+        .where('created', '<', formattedDate)
+        .andWhere({ unfollowed: false })
+        .orderBy('created', 'asc');
       return users;
     },
     getUsersToFollow: async (usernames) => {
