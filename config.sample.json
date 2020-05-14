@@ -1,0 +1,24 @@
+{
+  "account": {
+    "email": "account@email.com",
+    "password": "password"
+  },
+  "headless": false,
+  "max": {
+    "follow": 200,
+    "unfollow": 200
+  },
+  "unfollowThreshold": 24,
+  "userBases": [
+    "reactjs",
+    "vuejs",
+    "angular",
+    "JavaScript",
+    "nodejs"
+  ],
+  "searchCriteria": [
+    "tech",
+    "developer",
+    "software"
+  ]
+}

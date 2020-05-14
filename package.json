@@ -1,0 +1,21 @@
+{
+  "name": "twitter-bot",
+  "version": "1.0.0",
+  "description": "puppeteer twitter bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "twitter",
+    "bot",
+    "puppeteer"
+  ],
+  "author": "Horst Jahns",
+  "license": "ISC",
+  "dependencies": {
+    "knex": "^0.21.1",
+    "puppeteer": "^3.0.4",
+    "sqlite3": "^4.2.0"
+  }
+}
