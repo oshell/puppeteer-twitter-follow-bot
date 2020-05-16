@@ -48,9 +48,9 @@ const throttle = (ms) => {
   for (let i = 0; i < usersToUnfollow.length; i++) {
     if (i > config.max.unfollow) break;
     const user = usersToUnfollow[i];
-    await twitter.unfollowUser(page, user.name);
-    unfollowCount++;
-    if (i % 10 === 0) {
+    const success = await twitter.unfollowUser(page, user.name);
+    if (success) unfollowCount++;
+    if (i > 0 && i % 10 === 0) {
       console.log('30 seconds pause before resuming unfollow action.');
       await throttle(30000);
     }

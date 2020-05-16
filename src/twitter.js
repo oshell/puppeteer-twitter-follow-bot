@@ -125,20 +125,34 @@ const twitter = {
     const link = `https://twitter.com/${username}`;
     await page.evaluate((link) => { window.location.href = link; }, link);
     await throttle(4000);
-    await page.evaluate(() => {
+    const success = await page.evaluate(() => {
       const unfollowButton = document.querySelector('div[role="button"][data-testid*="follow"]');
       if (!unfollowButton) return;
-      if (unfollowButton) unfollowButton.click();
+      const action = unfollowButton.innerText;
+      if (unfollowButton && action === 'Following') {
+        unfollowButton.click();
+        return true;
+      } else {
+        return false;
+      }
     });
-    await throttle(1000);
-    await page.evaluate(() => {
-      const confirmButton = document.querySelector('div[role="button"][data-testid*="confirmationSheetConfirm"]');
-      if (!confirmButton) return;
-      if (confirmButton) confirmButton.click();
-    });
-    await throttle(2000);
+
+    if (success) {
+      await throttle(1000);
+      await page.evaluate(() => {
+        const confirmButton = document.querySelector('div[role="button"][data-testid*="confirmationSheetConfirm"]');
+        if (!confirmButton) return;
+        if (confirmButton) confirmButton.click();
+      });
+      await throttle(2000);
+      console.log(`Unfollowed @${username}`);
+    } else {
+      console.log(`Unable to unfollow @${username}. (already unfollowed)`);
+    }
+
     await db.users.unfollow(username);
-    console.log(`Unfollowed @${username}`);
+
+    return success;
   }
 }
 

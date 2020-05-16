@@ -35,15 +35,16 @@ const database = {
       return users.length;
     },
     unfollow: async (name) => {
-      await knex('users').update({ unfollowed: true }).where({ name });
-  
+      await knex('users').update({ unfollowed: 1 }).where({ name });
       return true;
     },
     getUsersToUnfollow: async () => {
       const users = await knex('users')
+        .distinct('name')
         .where('created', '<', formattedDate)
-        .andWhere({ unfollowed: false })
+        .andWhere({ unfollowed: 0 })
         .orderBy('created', 'asc');
+        
       return users;
     },
     getUsersToFollow: async (usernames) => {
