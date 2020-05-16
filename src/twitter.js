@@ -16,12 +16,17 @@ const twitter = {
       };
     });
   
-    await page.evaluate(async () => {
+    const focused = await page.evaluate(async () => {
       const nodes = document.querySelectorAll('form input');
       const emailField = nodes[5];
+      if (!emailField) return false;
+
       emailField.focus();
       await throttle(2000);
+      return true;
     });
+
+    if (!focused) return false;
   
     await page.keyboard.type(email);
   
@@ -38,6 +43,8 @@ const twitter = {
       const button = document.querySelector('form div[role="button"]');
       button.click();
     });
+
+    return true;
   },
   getPotentialFollows: async function(page, searchValues) {
     return await page.evaluate(async (searchValues) => {

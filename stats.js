@@ -6,5 +6,6 @@ const db = require('./database/database');
 
   console.log(`Users followed: ${count}`);
   console.log(`Users unfollowed: ${countUnfollowed}`);
+
   process.exit();
 })();

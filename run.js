@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const config = require('./config.json');
 const db = require('./database/database');
 const twitter = require('./src/twitter');
+const fs = require('fs').promises;
 
 let followCount = 0;
 let unfollowCount = 0;
@@ -17,14 +18,30 @@ const throttle = (ms) => {
   const browser = await puppeteer.launch({ headless: config.headless });
   const page = await browser.newPage();
 
+  try {
+    const cookiesString = await fs.readFile('./cookies.json');
+    const cookies = JSON.parse(cookiesString);
+    console.log('Set cookies.');
+    await page.setCookie(...cookies);
+  } catch(e) {
+    console.log('No cookies set yet.');
+  }
+
   console.log('Open twitter.com');
   await page.goto('https://twitter.com/login');
+  await throttle(3000);
 
   console.log('Initialize Login.');
-  await twitter.login(page, config.account.email, config.account.password);
+  const success = await twitter.login(page, config.account.email, config.account.password);
+  const logMsg = success ? 'Login successfull.' : 'Login Session restored from cookies.'
 
-  console.log('Login successfull.');
+  console.log(logMsg);
   await throttle(5000);
+
+  console.log('Update cookies.');
+  const cookies = await page.cookies();
+  await fs.writeFile('./cookies.json', JSON.stringify(cookies, null, 2));
+
 
   console.log('Start unfollowing users.');
   const usersToUnfollow = await db.users.getUsersToUnfollow();
@@ -33,6 +50,10 @@ const throttle = (ms) => {
     const user = usersToUnfollow[i];
     await twitter.unfollowUser(page, user.name);
     unfollowCount++;
+    if (i % 10 === 0) {
+      console.log('30 seconds pause before resuming unfollow action.');
+      await throttle(30000);
+    }
   }
 
   // user bases from config are used as starting point
