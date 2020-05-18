@@ -45,6 +45,8 @@ const throttle = (ms) => {
 
   console.log('Start unfollowing users.');
   const usersToUnfollow = await db.users.getUsersToUnfollow();
+
+  console.log(`Potential Unfollows: ${usersToUnfollow.length}`);
   for (let i = 0; i < usersToUnfollow.length; i++) {
     if (i > config.max.unfollow) break;
     const user = usersToUnfollow[i];

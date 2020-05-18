@@ -63,11 +63,11 @@ const database = {
       return usersToFollow;
     },
     count: async (name) => {
-      const result = await knex('users').count('id as count');
+      const result = await knex('users').count({ count: knex.raw('distinct users.name') });
       return result[0].count;
     },
     countUnfollowed: async (name) => {
-      const result = await knex('users').count('id as count').where('unfollowed', true);
+      const result = await knex('users').count({ count: knex.raw('distinct users.name') }).where('unfollowed', true);
       return result[0].count;
     }
   }
